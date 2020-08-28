@@ -170,5 +170,27 @@ class DeleteTicket(Resource):
         
 api.add_resource(DeleteTicket, '/delete_ticket')
 
+class GetTicketDetails(Resource):
+    def get(self):
+        req = request.get_json()
 
+        if 'ticket_id' not in req:
+            return {'error': 'Ticket ID to be deleted not provided'}, 400
+
+        if not ObjectId.is_valid(req['ticket_id']):
+            return {'error': 'Invalid ticket ID'}, 400
+        try:
+            ticket_collection = db.movie_tickets.tickets
+            exists = ticket_collection.find_one({
+                '_id': ObjectId(req['ticket_id'])
+            })
+            if not exists:
+                return {'error': "Ticket doesn't exists"}
+            exists['_id'] = str(exists['_id'])
+            return {"data": exists}
+        except Exception as e:
+            flash(e.__str__())
+            return {'error': 'Database error. Please try again later'}, 500
+
+api.add_resource(GetTicketDetails, '/get_ticket')
         
