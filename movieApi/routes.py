@@ -60,7 +60,7 @@ class BookMovieTicket(Resource):
 api.add_resource(BookMovieTicket, '/book')
 
 class UpdateTicket(Resource):
-    def post(self):
+    def put(self):
         req = request.get_json()
 
         if 'ticket_id' not in req:
@@ -110,7 +110,7 @@ class UpdateTicket(Resource):
 api.add_resource(UpdateTicket, '/update_timing')
 
 class GetTicketsByTime(Resource):
-    def post(self):
+    def get(self):
         req = request.get_json()
         payload = []
         if 'timing' not in req:
@@ -121,18 +121,54 @@ class GetTicketsByTime(Resource):
             tickets = list(ticket_collection.find({
                 'timing': req['timing']
             }))
-            
+
             for ticket in tickets:
                 ticket['_id'] = str(ticket['_id'])
                 payload.append(ticket)
 
-            return {'tickets': payload}
         except Exception as e:
             flash(e.__str__())
             return {'error': 'Database error. Please try again later'}, 500
 
+        return {'tickets': payload}
+
 api.add_resource(GetTicketsByTime, '/get_tickets_by_time')
 
+class DeleteTicket(Resource):
+    def delete(self):
+        req = request.get_json()
+
+        if 'ticket_id' not in req:
+            return {'error': 'Ticket ID to be deleted not provided'}, 400
+
+        if not ObjectId.is_valid(req['ticket_id']):
+            return {'error': 'Invalid ticket ID'}, 400
+        
+        try:
+            ticket_collection = db.movie_tickets.tickets
+            exists = ticket_collection.find_one({
+                '_id': ObjectId(req['ticket_id'])
+            })
+            if not exists:
+                return {'error': "Ticket doesn't exists"}
+            ticket_collection.delete_one({
+                '_id': ObjectId(req['ticket_id'])
+            })
+            timing_map = db.movie_tickets.timing_map
+            timing_map.update_one({
+                'time': exists['timing']
+            }, {
+                '$inc': {
+                    'bookings': -1
+                }
+            })
+        except Exception as e:
+            flash(e.__str__())
+            return {'error': 'Database error. Please try again later'}, 500
+
+        return {'message': 'Ticket with id-' + req['ticket_id'] + ' deleted successfully'}
+        
+api.add_resource(DeleteTicket, '/delete_ticket')
 
 
         
