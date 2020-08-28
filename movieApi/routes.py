@@ -109,6 +109,30 @@ class UpdateTicket(Resource):
 
 api.add_resource(UpdateTicket, '/update_timing')
 
+class GetTicketsByTime(Resource):
+    def post(self):
+        req = request.get_json()
+        payload = []
+        if 'timing' not in req:
+            return {'error': 'Time for which data to be fetched not provided'}, 400
+        
+        try:
+            ticket_collection = db.movie_tickets.tickets
+            tickets = list(ticket_collection.find({
+                'timing': req['timing']
+            }))
+            
+            for ticket in tickets:
+                ticket['_id'] = str(ticket['_id'])
+                payload.append(ticket)
+
+            return {'tickets': payload}
+        except Exception as e:
+            flash(e.__str__())
+            return {'error': 'Database error. Please try again later'}, 500
+
+api.add_resource(GetTicketsByTime, '/get_tickets_by_time')
+
 
 
         
