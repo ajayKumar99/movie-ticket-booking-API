@@ -152,7 +152,7 @@ class TicketManagementAPI(Resource):
                 '_id': ObjectId(req['ticket_id'])
             })
             if not exists:
-                return {'error': "Ticket doesn't exists"}
+                return {'error': "Ticket doesn't exists"}, 400
             ticket_collection.delete_one({
                 '_id': ObjectId(req['ticket_id'])
             })
