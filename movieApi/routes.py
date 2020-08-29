@@ -1,16 +1,17 @@
 from flask import Blueprint, request, flash
 from flask_restful import Resource, Api
 from bson.objectid import ObjectId
+import datetime
 from .extensions import db
 
 middleware = Blueprint('api', __name__, url_prefix='/api')
 api = Api(middleware)
 
 def convert_time(time):
-    hh, mm = time.split(':')
-    return hh.strip() + ':' + mm.strip()
+    d = datetime.datetime.strptime(time, "%Y-%m-%dT%H:%M")
+    return d
 
-def update_time(time_val):
+def get_no_of_bookings(time_val):
     n_bookings = db.movie_tickets.tickets.find({
                 'timing': time_val
             }).count()
@@ -30,17 +31,21 @@ class BookMovieTicket(Resource):
         if 'timing' not in req:
             return {'error': 'Ticket timing not provided'}, 400
 
-        time_val = convert_time(req['timing'])
+        try:
+            time_val = convert_time(req['timing'])
+        except ValueError as v:
+            return {'error': v.__str__()}
 
         try:
-            if not update_time(time_val):
+            if not get_no_of_bookings(time_val):
                 return {'error': 'Maximum booking limit for this time exeeded'}, 400
             
             ticket_collection = db.movie_tickets.tickets
             ticket_id = ticket_collection.insert_one({
                 'name': req['name'].strip(),
                 'phone': req['phone'].strip(),
-                'timing': time_val
+                'timing': time_val,
+                'expiresAt': time_val + datetime.timedelta(hours=8)
             })
         except Exception as e:
             flash(e.__str__())
@@ -63,7 +68,10 @@ class UpdateTicket(Resource):
         if 'timing' not in req:
             return {'error': 'Updated time not provided'}, 400
 
-        time_val = convert_time(req['timing'])
+        try:
+            time_val = convert_time(req['timing'])
+        except ValueError as v:
+            return {'error': v.__str__()}
 
         try:
             ticket_collection = db.movie_tickets.tickets
@@ -73,14 +81,14 @@ class UpdateTicket(Resource):
             if not exists:
                 return {'error': "This ticket doesn't exists"}, 400
 
-            if not update_time(time_val):
+            if not get_no_of_bookings(time_val):
                 return {'error': 'Maximum booking limit for this time exeeded'}, 400
 
             ticket_collection.update_one({
                 '_id': ObjectId(req['ticket_id'])
             }, {
                 '$set': {
-                    'timing': req['timing']
+                    'timing': time_val
                 }
             })
         except Exception as e:
@@ -101,7 +109,7 @@ class GetTicketsByTime(Resource):
         try:
             ticket_collection = db.movie_tickets.tickets
             tickets = list(ticket_collection.find({
-                'timing': req['timing']
+                'timing': convert_time(req['timing'])
             }))
 
             for ticket in tickets:
