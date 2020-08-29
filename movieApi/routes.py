@@ -11,20 +11,11 @@ def convert_time(time):
     return hh.strip() + ':' + mm.strip()
 
 def update_time(time_val):
-    timing_map = db.movie_tickets.timing_map
-    exists = timing_map.find_one({
-        'time': time_val
-    })
-    if exists:
-        if exists['bookings'] == 20:
-            return False
-    timing_map.update_one({
-            'time': time_val
-        }, {
-            '$inc': {
-                'bookings': 1
-            }
-        }, upsert=True)
+    n_bookings = db.movie_tickets.tickets.find({
+                'timing': time_val
+            }).count()
+    if n_bookings == 20:
+        return False
     return True
 
 
@@ -84,15 +75,6 @@ class UpdateTicket(Resource):
 
             if not update_time(time_val):
                 return {'error': 'Maximum booking limit for this time exeeded'}, 400
-
-            timing_map = db.movie_tickets.timing_map
-            timing_map.update_one({
-                'time': exists['timing']
-            }, {
-                '$inc': {
-                    'bookings': -1
-                }
-            })
 
             ticket_collection.update_one({
                 '_id': ObjectId(req['ticket_id'])
@@ -154,14 +136,7 @@ class DeleteTicket(Resource):
             ticket_collection.delete_one({
                 '_id': ObjectId(req['ticket_id'])
             })
-            timing_map = db.movie_tickets.timing_map
-            timing_map.update_one({
-                'time': exists['timing']
-            }, {
-                '$inc': {
-                    'bookings': -1
-                }
-            })
+    
         except Exception as e:
             flash(e.__str__())
             return {'error': 'Database error. Please try again later'}, 500
