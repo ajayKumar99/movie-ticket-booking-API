@@ -46,3 +46,46 @@ Following routes are allowed on the API
 - **DELETE** api/v1/ticket (_Delete a ticket_)
 
 ### Booking a ticket
+Ticket can be booked by giving a POST request to api/v1/ticket route with following parameters.<br />
+The format for timing is YYYY-MM-DDTHH:MM. For example, to be book ticket for 30th August,2020 7:00PM, the timing parameter will be 2020-08-30T19:00
+```
+{
+    "name": "Username",
+    "phone": "Phone Number",
+    "timing": "Show time to be booked"
+}
+```
+An **expiresAt** key is attached to every successful booking which is the time 8 hours from the ticket time. The ticket is automatically marked expired and deleted when current time reaches expiresAt.
+
+### Updating ticket timing
+Ticket timing can be updated by giving a PUT request to api/v1/ticket route with following parameters.<br />
+The format for timing is YYYY-MM-DDTHH:MM. For example, to be book ticket for 30th August,2020 7:00PM, the timing parameter will be 2020-08-30T19:00
+```
+{
+    "ticket_id": "ID of the ticket to be updated",
+    "timing": "Updated time"
+}
+```
+
+### Get ticket details
+To get detail of a particular ticket, give a GET request to /api/v1/ticket route with following parameters.<br />
+```
+{
+    "ticket_id": "ID of the ticket to be updated",
+}
+```
+To get detail of al the tickets for particular time, give a GET request to /api/v1/ticket route with following parameters.<br />
+The format for timing is YYYY-MM-DDTHH:MM. For example, to be book ticket for 30th August,2020 7:00PM, the timing parameter will be 2020-08-30T19:00
+```
+{
+    "timing": "Time for which tickets have to be shown"
+}
+```
+
+### Deleting a ticket
+Tickets can be deleted by giving a DELETE request to api/v1/ticket route with following parameters.<br />
+```
+{
+    "ticket_id": "ID of the ticket to be deleted"
+}
+```
