@@ -19,8 +19,7 @@ def get_no_of_bookings(time_val):
         return False
     return True
 
-
-class BookMovieTicket(Resource):
+class TicketManagementAPI(Resource):
     def post(self):
         req = request.get_json()
 
@@ -53,9 +52,6 @@ class BookMovieTicket(Resource):
         
         return {'message': 'Ticket Booked', 'ticket_id': str(ticket_id.inserted_id)}, 201
 
-api.add_resource(BookMovieTicket, '/book')
-
-class UpdateTicket(Resource):
     def put(self):
         req = request.get_json()
 
@@ -98,14 +94,30 @@ class UpdateTicket(Resource):
         
         return {'message': 'Ticket timing updated', 'ticket_id': req['ticket_id']}, 201
 
-api.add_resource(UpdateTicket, '/update_timing')
-
-class GetTicketsByTime(Resource):
     def get(self):
         req = request.get_json()
+        
+        if 'ticket_id' in req:
+            if not ObjectId.is_valid(req['ticket_id']):
+                return {'error': 'Invalid ticket ID'}, 400
+            try:
+                ticket_collection = db.movie_tickets.tickets
+                exists = ticket_collection.find_one({
+                    '_id': ObjectId(req['ticket_id'])
+                })
+                if not exists:
+                    return {'error': "Ticket doesn't exists"}
+                exists['_id'] = str(exists['_id'])
+                exists['timing'] = exists['timing'].strftime("%Y-%m-%dT%H:%M")
+                exists['expiresAt'] = exists['expiresAt'].strftime("%Y-%m-%dT%H:%M")
+                return {"data": exists}, 200
+            except Exception as e:
+                flash(e.__str__())
+                return {'error': 'Database error. Please try again later'}, 500
+            if 'timing' not in req:
+                return {'error': 'Time for which data to be fetched not provided'}, 400
+
         payload = []
-        if 'timing' not in req:
-            return {'error': 'Time for which data to be fetched not provided'}, 400
         
         try:
             ticket_collection = db.movie_tickets.tickets
@@ -125,9 +137,6 @@ class GetTicketsByTime(Resource):
 
         return {'tickets': payload}, 200
 
-api.add_resource(GetTicketsByTime, '/get_tickets_by_time')
-
-class DeleteTicket(Resource):
     def delete(self):
         req = request.get_json()
 
@@ -153,32 +162,6 @@ class DeleteTicket(Resource):
             return {'error': 'Database error. Please try again later'}, 500
 
         return {'message': 'Ticket with id-' + req['ticket_id'] + ' deleted successfully'}, 200
-        
-api.add_resource(DeleteTicket, '/delete_ticket')
 
-class GetTicketDetails(Resource):
-    def get(self):
-        req = request.get_json()
 
-        if 'ticket_id' not in req:
-            return {'error': 'Ticket ID to be deleted not provided'}, 400
-
-        if not ObjectId.is_valid(req['ticket_id']):
-            return {'error': 'Invalid ticket ID'}, 400
-        try:
-            ticket_collection = db.movie_tickets.tickets
-            exists = ticket_collection.find_one({
-                '_id': ObjectId(req['ticket_id'])
-            })
-            if not exists:
-                return {'error': "Ticket doesn't exists"}
-            exists['_id'] = str(exists['_id'])
-            exists['timing'] = exists['timing'].strftime("%Y-%m-%dT%H:%M")
-            exists['expiresAt'] = exists['expiresAt'].strftime("%Y-%m-%dT%H:%M")
-            return {"data": exists}, 200
-        except Exception as e:
-            flash(e.__str__())
-            return {'error': 'Database error. Please try again later'}, 500
-
-api.add_resource(GetTicketDetails, '/get_ticket')
-        
+api.add_resource(TicketManagementAPI, '/v1/ticket')
