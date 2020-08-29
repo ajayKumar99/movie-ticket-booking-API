@@ -88,7 +88,8 @@ class UpdateTicket(Resource):
                 '_id': ObjectId(req['ticket_id'])
             }, {
                 '$set': {
-                    'timing': time_val
+                    'timing': time_val,
+                    'expiresAt': time_val + datetime.timedelta(hours=8)
                 }
             })
         except Exception as e:
@@ -114,13 +115,15 @@ class GetTicketsByTime(Resource):
 
             for ticket in tickets:
                 ticket['_id'] = str(ticket['_id'])
+                ticket['timing'] = ticket['timing'].strftime("%Y-%m-%dT%H:%M")
+                ticket['expiresAt'] = ticket['expiresAt'].strftime("%Y-%m-%dT%H:%M")
                 payload.append(ticket)
 
         except Exception as e:
             flash(e.__str__())
             return {'error': 'Database error. Please try again later'}, 500
 
-        return {'tickets': payload}
+        return {'tickets': payload}, 200
 
 api.add_resource(GetTicketsByTime, '/get_tickets_by_time')
 
@@ -149,7 +152,7 @@ class DeleteTicket(Resource):
             flash(e.__str__())
             return {'error': 'Database error. Please try again later'}, 500
 
-        return {'message': 'Ticket with id-' + req['ticket_id'] + ' deleted successfully'}
+        return {'message': 'Ticket with id-' + req['ticket_id'] + ' deleted successfully'}, 200
         
 api.add_resource(DeleteTicket, '/delete_ticket')
 
@@ -170,7 +173,9 @@ class GetTicketDetails(Resource):
             if not exists:
                 return {'error': "Ticket doesn't exists"}
             exists['_id'] = str(exists['_id'])
-            return {"data": exists}
+            exists['timing'] = exists['timing'].strftime("%Y-%m-%dT%H:%M")
+            exists['expiresAt'] = exists['expiresAt'].strftime("%Y-%m-%dT%H:%M")
+            return {"data": exists}, 200
         except Exception as e:
             flash(e.__str__())
             return {'error': 'Database error. Please try again later'}, 500
