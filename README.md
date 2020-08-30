@@ -105,5 +105,6 @@ Tickets can be deleted by giving a DELETE request to api/v1/ticket route with fo
 
 ## Testing
 Unit tests have been written and tested using pytest library. All the test related files can be found in **tests** directory. Below is the test report.<br/>
+<br />
 <img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/unit_testing.PNG" width="85%" height="85%">
 
