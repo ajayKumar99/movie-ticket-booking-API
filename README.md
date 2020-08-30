@@ -72,7 +72,7 @@ The format for timing is YYYY-MM-DDTHH:MM. For example, to be book ticket for 30
 #### Example
 <img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/updation_test.PNG" width="60%" height="60%">
 
-### Get ticket details
+### Get ticket details by ID
 To get detail of a particular ticket, give a GET request to /api/v1/ticket route with following parameters.<br />
 ```
 {
@@ -80,8 +80,10 @@ To get detail of a particular ticket, give a GET request to /api/v1/ticket route
 }
 ```
 #### Example
-<img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/get_by_id.PNG" width="60%" height="60%">
-To get detail of al the tickets for particular time, give a GET request to /api/v1/ticket route with following parameters.<br />
+<img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/get_by_id.PNG" width="60%" height="60%"/>
+
+### Get ticket details by Timing
+To get detail of all the tickets for particular time, give a GET request to /api/v1/ticket route with following parameters.<br />
 The format for timing is YYYY-MM-DDTHH:MM. For example, to be book ticket for 30th August,2020 7:00PM, the timing parameter will be 2020-08-30T19:00
 ```
 {
