@@ -25,11 +25,11 @@ class TicketManagementAPI(Resource):
     def post(self):
         req = request.get_json()
 
-        if 'name' not in req:
+        if 'name' not in req or req['name'] == '':
             return {'error': 'Username not provided'}, 400
-        if 'phone' not in req:
+        if 'phone' not in req or req['phone'] == '':
             return {'error': 'Phone number not provided'}, 400
-        if 'timing' not in req:
+        if 'timing' not in req or req['timing'] == '':
             return {'error': 'Ticket timing not provided'}, 400
 
         try:
@@ -63,13 +63,13 @@ class TicketManagementAPI(Resource):
     def put(self):
         req = request.get_json()
 
-        if 'ticket_id' not in req:
+        if 'ticket_id' not in req or req['ticket_id'] == '':
             return {'error': 'Ticket ID to update not provided'}, 400
         
         if not ObjectId.is_valid(req['ticket_id']):
             return {'error': 'Invalid ticket ID'}, 400
 
-        if 'timing' not in req:
+        if 'timing' not in req or req['timing'] == '':
             return {'error': 'Updated time not provided'}, 400
 
         try:
@@ -111,7 +111,7 @@ class TicketManagementAPI(Resource):
     def get(self):
         req = request.get_json()
         
-        if 'ticket_id' in req:
+        if 'ticket_id' in req and req['ticket_id'] != '':
             if not ObjectId.is_valid(req['ticket_id']):
                 return {'error': 'Invalid ticket ID'}, 400
             try:
@@ -134,8 +134,9 @@ class TicketManagementAPI(Resource):
             except Exception as e:
                 flash(e.__str__())
                 return {'error': 'Database error. Please try again later'}, 500
-            if 'timing' not in req:
-                return {'error': 'Time for which data to be fetched not provided'}, 400
+
+        if 'timing' not in req or req['timing'] == '':
+            return {'error': 'Time for which data to be fetched not provided'}, 400
 
         payload = []
         
@@ -166,7 +167,7 @@ class TicketManagementAPI(Resource):
     def delete(self):
         req = request.get_json()
 
-        if 'ticket_id' not in req:
+        if 'ticket_id' not in req or req['ticket_id'] == '':
             return {'error': 'Ticket ID to be deleted not provided'}, 400
 
         if not ObjectId.is_valid(req['ticket_id']):
