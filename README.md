@@ -56,6 +56,9 @@ The format for timing is YYYY-MM-DDTHH:MM. For example, to be book ticket for 30
 }
 ```
 An **expiresAt** key is attached to every successful booking which is the time 8 hours from the ticket time. The ticket is automatically marked expired and deleted when current time reaches expiresAt.
+#### Example
+<img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/booking_test.PNG" width="60%" height="60%">
+
 
 ### Updating ticket timing
 Ticket timing can be updated by giving a PUT request to api/v1/ticket route with following parameters.<br />
@@ -66,6 +69,8 @@ The format for timing is YYYY-MM-DDTHH:MM. For example, to be book ticket for 30
     "timing": "Updated time"
 }
 ```
+#### Example
+<img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/updation_test.PNG" width="60%" height="60%">
 
 ### Get ticket details
 To get detail of a particular ticket, give a GET request to /api/v1/ticket route with following parameters.<br />
@@ -74,6 +79,8 @@ To get detail of a particular ticket, give a GET request to /api/v1/ticket route
     "ticket_id": "ID of the ticket to be updated",
 }
 ```
+#### Example
+<img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/get_by_id.PNG" width="60%" height="60%">
 To get detail of al the tickets for particular time, give a GET request to /api/v1/ticket route with following parameters.<br />
 The format for timing is YYYY-MM-DDTHH:MM. For example, to be book ticket for 30th August,2020 7:00PM, the timing parameter will be 2020-08-30T19:00
 ```
@@ -81,6 +88,8 @@ The format for timing is YYYY-MM-DDTHH:MM. For example, to be book ticket for 30
     "timing": "Time for which tickets have to be shown"
 }
 ```
+#### Example
+<img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/get_by_time.PNG" width="60%" height="60%">
 
 ### Deleting a ticket
 Tickets can be deleted by giving a DELETE request to api/v1/ticket route with following parameters.<br />
@@ -89,3 +98,5 @@ Tickets can be deleted by giving a DELETE request to api/v1/ticket route with fo
     "ticket_id": "ID of the ticket to be deleted"
 }
 ```
+#### Example
+<img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/delete_test.PNG" width="60%" height="60%">
