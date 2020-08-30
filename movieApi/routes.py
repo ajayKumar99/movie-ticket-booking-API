@@ -2,6 +2,8 @@ from flask import Blueprint, request, flash
 from flask_restful import Resource, Api
 from bson.objectid import ObjectId
 import datetime
+from dateutil import *
+from dateutil.tz import *
 from .extensions import db
 
 middleware = Blueprint('api', __name__, url_prefix='/api')
@@ -39,12 +41,18 @@ class TicketManagementAPI(Resource):
             if not get_no_of_bookings(time_val):
                 return {'error': 'Maximum booking limit for this time exeeded'}, 400
             
+            utc_zone = tz.tzutc()
+            local_zone = tz.tzlocal()
+            expiry_time = time_val
+            expiry_time = expiry_time.replace(tzinfo=local_zone)
+            expiry_time = expiry_time.astimezone(utc_zone) + datetime.timedelta(hours=8)
+
             ticket_collection = db.movie_tickets.tickets
             ticket_id = ticket_collection.insert_one({
                 'name': req['name'].strip(),
                 'phone': req['phone'].strip(),
                 'timing': time_val,
-                'expiresAt': time_val + datetime.timedelta(hours=8)
+                'expiresAt': expiry_time
             })
         except Exception as e:
             flash(e.__str__())
@@ -80,12 +88,18 @@ class TicketManagementAPI(Resource):
             if not get_no_of_bookings(time_val):
                 return {'error': 'Maximum booking limit for this time exeeded'}, 400
 
+            utc_zone = tz.tzutc()
+            local_zone = tz.tzlocal()
+            expiry_time = time_val
+            expiry_time = expiry_time.replace(tzinfo=local_zone)
+            expiry_time = expiry_time.astimezone(utc_zone) + datetime.timedelta(hours=8)
+
             ticket_collection.update_one({
                 '_id': ObjectId(req['ticket_id'])
             }, {
                 '$set': {
                     'timing': time_val,
-                    'expiresAt': time_val + datetime.timedelta(hours=8)
+                    'expiresAt': expiry_time
                 }
             })
         except Exception as e:
@@ -107,9 +121,15 @@ class TicketManagementAPI(Resource):
                 })
                 if not exists:
                     return {'error': "Ticket doesn't exists"}
+                utc_zone = tz.tzutc()
+                local_zone = tz.tzlocal()
+                expiry_time = exists['expiresAt']
+                expiry_time = expiry_time.replace(tzinfo=utc_zone)
+                expiry_time = expiry_time.astimezone(local_zone)
+
                 exists['_id'] = str(exists['_id'])
                 exists['timing'] = exists['timing'].strftime("%Y-%m-%dT%H:%M")
-                exists['expiresAt'] = exists['expiresAt'].strftime("%Y-%m-%dT%H:%M")
+                exists['expiresAt'] = expiry_time.strftime("%Y-%m-%dT%H:%M")
                 return {"data": exists}, 200
             except Exception as e:
                 flash(e.__str__())
@@ -126,9 +146,15 @@ class TicketManagementAPI(Resource):
             }))
 
             for ticket in tickets:
+                utc_zone = tz.tzutc()
+                local_zone = tz.tzlocal()
+                expiry_time = ticket['expiresAt']
+                expiry_time = expiry_time.replace(tzinfo=utc_zone)
+                expiry_time = expiry_time.astimezone(local_zone)
+
                 ticket['_id'] = str(ticket['_id'])
                 ticket['timing'] = ticket['timing'].strftime("%Y-%m-%dT%H:%M")
-                ticket['expiresAt'] = ticket['expiresAt'].strftime("%Y-%m-%dT%H:%M")
+                ticket['expiresAt'] = expiry_time.strftime("%Y-%m-%dT%H:%M")
                 payload.append(ticket)
 
         except Exception as e:
