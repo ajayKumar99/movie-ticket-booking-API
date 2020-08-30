@@ -1,6 +1,6 @@
 # Movie Theatre Ticket Booking API
 
-An API as part of Zomentum's campus hiring assignment. This API helps fetch ticket data from DB, or update, delete or create tickets. Also, tickets are automatically deleted after 8 hours of their show time.
+An API as part of Zomentum's campus hiring assignment. This API helps fetch ticket data from DB, or update, delete or create tickets. Also, tickets are automatically deleted after 8 hours of their show time. MongoDB's TTL index has been used to achieve auto deletion after expiry.
 
 ## Assumptions
 
@@ -102,3 +102,8 @@ Tickets can be deleted by giving a DELETE request to api/v1/ticket route with fo
 ```
 #### Example
 <img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/delete_test.PNG" width="60%" height="60%">
+
+## Testing
+Unit tests have been written and tested using pytest library. All the test related files can be found in **tests** directory. Below is the test report.<br/>
+<img src="https://github.com/ajayKumar99/movie-ticket-booking-API/blob/master/images/unit_testing.PNG" width="85%" height="85%">
+
